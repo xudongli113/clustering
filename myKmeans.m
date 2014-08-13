@@ -1,0 +1,73 @@
+function [N,IDX,C,sil] = myKmeans(X,min,max,init)
+rows = ceil((max-min+1)/2);
+figure % create new figure
+silv = zeros(1,max-min+1);
+maxsil = 0;
+
+switch init
+    case 'random'
+        for i = min:max
+            
+            [idx,c] = kmeans(X,i);
+            %   subplot(rows,2,i-min+1);
+            sil=silhouette(X,idx);
+            meansil = mean(sil);
+            silv(i-min+1) = meansil;
+            if i== min
+                maxsil = meansil;
+                N=min;
+                C=c;
+                IDX = idx;
+            elseif meansil > maxsil
+                maxsil = meansil;
+                N = i;
+                C=c;
+                IDX = idx;
+            end
+        end
+        
+    case 'farthest first'
+        [~,c] = kmeanspp(X,max);
+        for i = min:max
+            startpoint  = c(1:i);
+            [idx,c] = kmeans(X,i,'start',startpoint);
+            sil=silhouette(X,idx);
+            meansil = mean(sil);
+            silv(i-min+1) = meansil;
+            if i== min
+                maxsil = meansil;
+                N=min;
+                C=c;
+                IDX = idx;
+            elseif meansil > maxsil
+                maxsil = meansil;
+                N = i;
+                C=c;
+                IDX = idx;
+            end
+        end
+        
+    case 'furthest sum'
+        c = furthestsum(X,max);
+        for i = min:max
+            startpoint = c(1:i);
+            [idx,c] = kmeans(X,i,'start',startpoint);
+            sil=silhouette(X,idx);
+            meansil = mean(sil);
+            silv(i-min+1) = meansil;
+            if i== min
+                maxsil = meansil;
+                N=min;
+                C=c;
+                IDX = idx;
+            elseif meansil > maxsil
+                maxsil = meansil;
+                N = i;
+                C=c;
+                IDX = idx;
+            end
+        end
+end  
+
+sil = silv;
+end
